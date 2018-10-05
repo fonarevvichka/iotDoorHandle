@@ -12,7 +12,7 @@ WiFiServer server(80);
 
 String header;
 float readingSum = 0;
-
+String validMacs[] = {"address1", "adress2"};
 void setup() {
   Serial.begin(115200);
   delay(100);
@@ -89,7 +89,13 @@ void loop() {
 					if (currentLine.length() == 0) {
 						client.println(prepareHtmlPage()); //displays page
 						if (header.indexOf("GET /?value=")>=0) { //checks for button press
-							//code when button is pushed 
+							//code when button is pushed
+							String userMac = getMac(); 
+							for (int i = 0; i < sizeof(validMacs); i++) {
+								if (validMacs[i] == userMac) {
+									//unlock door
+								}
+							}
 						}
 					client.println();
 				  	break;
@@ -106,8 +112,8 @@ void loop() {
     Serial.println("[Client disonnected]");
   }
 }
-string getMAC() {
-	string macAddress = "";
+String getMac() {
+	String macAddress = "";
 	
 	macAddress += stat_info->bssid[0],HEX;
 	macAddress += stat_info->bssid[0],HEX;
