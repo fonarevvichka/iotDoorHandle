@@ -5,14 +5,15 @@
 
 //------------------- Wifi Setup -----------------------//
 const char* ssid = "";
-const char* password = "";
+const char* wifiPassword = "";
+const String password = "test123"
+String userPassword = "";
 //------------------- Wifi Setup -----------------------//
 
 WiFiServer server(80);
 
 String header;
-float readingSum = 0;
-String validMacs[] = {"address1", "adress2"};
+
 void setup() {
   Serial.begin(115200);
   delay(100);
@@ -23,7 +24,7 @@ void setup() {
 
   Serial.print("Connecting to");
   Serial.print(ssid);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, wifiPassword);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -90,9 +91,8 @@ void loop() {
 						client.println(prepareHtmlPage()); //displays page
 						if (header.indexOf("GET /?value=")>=0) { //checks for button press
 							//code when button is pushed
-							String userMac = getMac(); 
 							for (int i = 0; i < sizeof(validMacs); i++) {
-								if (validMacs[i] == userMac) {
+								if (password == userPassword) {
 									//unlock door
 								}
 							}
@@ -111,17 +111,4 @@ void loop() {
     client.stop();
     Serial.println("[Client disonnected]");
   }
-}
-String getMac() {
-	String macAddress = "";
-	
-	macAddress += stat_info->bssid[0],HEX;
-	macAddress += stat_info->bssid[0],HEX;
-	macAddress += stat_info->bssid[1],HEX;
-	macAddress += stat_info->bssid[2],HEX;
-	macAddress += stat_info->bssid[3],HEX;
-	macAddress += stat_info->bssid[4],HEX;
-	macAddress += stat_info->bssid[5],HEX;
-
-	return macAddress; 
 }
