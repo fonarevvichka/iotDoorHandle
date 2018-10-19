@@ -1,32 +1,34 @@
 #include <ESP8266WiFi.h>
 //------------------ Pin Setup -----------------------//
-#define MOSFETPIN 14
+
 //------------------ Pin Setup -----------------------//
 
 //------------------- Wifi Setup -----------------------//
-const char* ssid = "";
-const char* wifiPassword = "";
-const String password = "test123"
-String userPassword = "";
+const char* ssid = "Tufts_Wireless";
+const char* password = ""; //No Password
 //------------------- Wifi Setup -----------------------//
 
 WiFiServer server(80);
 
 String header;
+float readingSum = 0;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); //subject to change
   delay(100);
 
+  Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
+  
   Serial.println();
   Serial.println();
   Serial.println();
-
+   
   Serial.print("Connecting to");
   Serial.print(ssid);
-  WiFi.begin(ssid, wifiPassword);
+  WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
+  
     delay(500);
     Serial.print(".");
   }
@@ -58,10 +60,10 @@ String prepareHtmlPage() {
             "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>"  + "\n" +
             "</head>"  + "\n" +
             "<body>"  + "\n" +
-            "<button type=\"button\" id=\"pushButton\"  onclick=\"servo()\" />START KETTLE</button>"  + "\n" +
+            "<button type=\"button\" id=\"pushButton\"  onclick=\"openDoor()\" />START KETTLE</button>"  + "\n" +
             "<script>"  + "\n" +
             "$.ajaxSetup({timeout:1000});"  + "\n" +
-            "function servo() {"  + "\n" +
+            "function openDoor() {"  + "\n" +
             "$.get(\"?value=\" + \"20\" + \"&\");"  + "\n" +
             "console.log(\"button pushed\")"  + "\n" +
             "{Connection: close};"  + "\n" +
@@ -76,39 +78,36 @@ String prepareHtmlPage() {
 void loop() {
   header = "";
   String currentLine = "";
-  
-	WiFiClient client = server.available();
-	
-	if (client) {
-    	Serial.print("new client");
-    	while (client.connected()) {
-			if (client.available()) {
-				char c = client.read();
-			   	Serial.write(c); //DATA ABOUT THE CLIENT
-			   	header += c;
-			   	if (c == '\n') {
-					if (currentLine.length() == 0) {
-						client.println(prepareHtmlPage()); //displays page
-						if (header.indexOf("GET /?value=")>=0) { //checks for button press
-							//code when button is pushed
-							for (int i = 0; i < sizeof(validMacs); i++) {
-								if (password == userPassword) {
-									//unlock door
-								}
-							}
-						}
-					client.println();
-				  	break;
-				} else { currentLine = "";}
-			  } else if (c != '\r') {
-					currentLine += c;
-			  }
-		}
+  WiFiClient client = server.available();
+  if (client) {
+//    Serial.print("new client");
+    while (client.connected()) {
+      if (client.available()) {
+       char c = client.read();
+//       Serial.write(c); //DATA ABOUT THE CLIENT
+       header += c;
+       if (c == '\n') {
+        if (currentLine.length() == 0) {
+          client.println(prepareHtmlPage());
+         
+          if(header.indexOf("GET /?value=")>=0) {
+              //butonn pressed
+
+          }
+            client.println();
+          break;
+        } else {
+          currentLine = "";
+        }
+      } else if (c != '\r') {
+        currentLine += c;
+      }
+    }
    }
     header = "";
     delay(1);
 
     client.stop();
-    Serial.println("[Client disonnected]");
+//    Serial.println("[Client disonnected]");
   }
 }
