@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <Stepper.h>
 //------------------ Pin Setup -----------------------//
 
 //------------------ Pin Setup -----------------------//
@@ -9,7 +10,8 @@ const char* password = ""; //No Password
 //------------------- Wifi Setup -----------------------//
 
 WiFiServer server(80);
-
+const int stepsPerRevolution = 750; //TODO: fix
+Stepper myStepper(1000, 12,13);
 String header;
 float readingSum = 0;
 
@@ -17,7 +19,7 @@ void setup() {
   Serial.begin(115200); //subject to change
   delay(100);
 
-  Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
+  myStepper.setSpeed(60);  
   
   Serial.println();
   Serial.println();
@@ -91,7 +93,10 @@ void loop() {
           client.println(prepareHtmlPage());
          
           if(header.indexOf("GET /?value=")>=0) {
-              //butonn pressed
+              Serial.println("button pushed");
+              myStepper.step(stepsPerRevolution-250);
+              delay(2000);
+              myStepper.step(-(stepsPerRevolution -250));
 
           }
             client.println();
